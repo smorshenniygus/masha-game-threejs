@@ -1,0 +1,117 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: #000;
+  color: #f6f6f6;
+  font-family: "Courier New", monospace;
+}
+
+.game-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ui-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 15%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.72);
+  color: #f2f2f2;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+.ui-hint.visible {
+  opacity: 1;
+}
+
+.ui-dialog {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 4%;
+  padding: 14px 16px;
+  background: rgba(16, 12, 22, 0.82);
+  border: 2px solid rgba(210, 210, 210, 0.45);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 120ms linear, transform 120ms linear;
+  pointer-events: auto;
+}
+
+.ui-dialog.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ui-dialog-name {
+  color: #ffdf8f;
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.ui-dialog-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.ui-dialog-tip {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+}
+
+.ui-fade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 1;
+  transition: opacity 500ms linear;
+}
+
+.ui-scanlines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+  opacity: 0.18;
+}

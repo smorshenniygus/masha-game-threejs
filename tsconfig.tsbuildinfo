@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/core/assets.ts","./src/core/game.ts","./src/core/input.ts","./src/core/statemachine.ts","./src/render/ps1renderer.ts","./src/scenes/clubscene.ts","./src/scenes/worldscene.ts","./src/ui/ui.ts","./src/utils/placeholders.ts","./src/utils/terrain.ts","./src/utils/textures.ts"],"version":"5.9.3"}
