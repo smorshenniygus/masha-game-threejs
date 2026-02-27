@@ -69,45 +69,47 @@ export class Assets {
   }
 
   async loadAudioBuffer(path: string): Promise<AudioBuffer | null> {
-    if (!this.audioCache.has(path)) {
+    const resolvedPath = this.resolvePublicPath(path);
+    if (!this.audioCache.has(resolvedPath)) {
       const promise = new Promise<AudioBuffer | null>((resolve) => {
         this.audioLoader.load(
-          path,
+          resolvedPath,
           (buffer) => resolve(buffer),
           undefined,
           () => {
             // eslint-disable-next-line no-console
-            console.warn(`[Assets] Audio missing or failed: ${path}. TODO: add file at this path.`);
+            console.warn(`[Assets] Audio missing or failed: ${resolvedPath}. TODO: add file at this path.`);
             resolve(null);
           }
         );
       });
 
-      this.audioCache.set(path, promise);
+      this.audioCache.set(resolvedPath, promise);
     }
 
-    return this.audioCache.get(path)!;
+    return this.audioCache.get(resolvedPath)!;
   }
 
   private async loadGLTF(path: string): Promise<GLTF | null> {
-    if (!this.gltfCache.has(path)) {
+    const resolvedPath = this.resolvePublicPath(path);
+    if (!this.gltfCache.has(resolvedPath)) {
       const promise = new Promise<GLTF | null>((resolve) => {
         this.gltfLoader.load(
-          path,
+          resolvedPath,
           (gltf) => resolve(gltf),
           undefined,
           () => {
             // eslint-disable-next-line no-console
-            console.warn(`[Assets] Model missing or failed: ${path}. TODO: add file at this path.`);
+            console.warn(`[Assets] Model missing or failed: ${resolvedPath}. TODO: add file at this path.`);
             resolve(null);
           }
         );
       });
 
-      this.gltfCache.set(path, promise);
+      this.gltfCache.set(resolvedPath, promise);
     }
 
-    return this.gltfCache.get(path)!;
+    return this.gltfCache.get(resolvedPath)!;
   }
 
   private async loadModel(path: string): Promise<{ root: Object3D; clips: AnimationClip[] } | null> {
@@ -164,7 +166,8 @@ export class Assets {
   }
 
   private async loadOBJ(path: string): Promise<Object3D | null> {
-    if (!this.objCache.has(path)) {
+    const resolvedPath = this.resolvePublicPath(path);
+    if (!this.objCache.has(resolvedPath)) {
       const promise = (async (): Promise<Object3D | null> => {
         const loader = new OBJLoader();
         const materials = await this.loadBestEffortMTL(path);
@@ -175,7 +178,7 @@ export class Assets {
 
         return new Promise<Object3D | null>((resolve) => {
           loader.load(
-            path,
+            resolvedPath,
             (obj) => {
               let hasMesh = false;
               obj.traverse((node) => {
@@ -186,7 +189,7 @@ export class Assets {
 
               if (!hasMesh) {
                 // eslint-disable-next-line no-console
-                console.warn(`[Assets] OBJ has no meshes: ${path}. Falling back to placeholder.`);
+                console.warn(`[Assets] OBJ has no meshes: ${resolvedPath}. Falling back to placeholder.`);
                 resolve(null);
                 return;
               }
@@ -196,17 +199,17 @@ export class Assets {
             undefined,
             () => {
               // eslint-disable-next-line no-console
-              console.warn(`[Assets] Model missing or failed: ${path}. TODO: add file at this path.`);
+              console.warn(`[Assets] Model missing or failed: ${resolvedPath}. TODO: add file at this path.`);
               resolve(null);
             }
           );
         });
       })();
 
-      this.objCache.set(path, promise);
+      this.objCache.set(resolvedPath, promise);
     }
 
-    return this.objCache.get(path)!;
+    return this.objCache.get(resolvedPath)!;
   }
 
   private async loadBestEffortMTL(objPath: string): Promise<LoadedMTL | null> {
@@ -225,9 +228,10 @@ export class Assets {
   }
 
   private async loadMTL(path: string): Promise<LoadedMTL | null> {
-    if (!this.mtlCache.has(path)) {
-      const dir = this.getDirectory(path);
-      const file = path.slice(dir.length);
+    const resolvedPath = this.resolvePublicPath(path);
+    if (!this.mtlCache.has(resolvedPath)) {
+      const dir = this.getDirectory(resolvedPath);
+      const file = resolvedPath.slice(dir.length);
       const loader = new MTLLoader();
       loader.setPath(dir);
       loader.setResourcePath(dir);
@@ -240,25 +244,26 @@ export class Assets {
           () => resolve(null)
         );
       });
-      this.mtlCache.set(path, promise);
+      this.mtlCache.set(resolvedPath, promise);
     }
 
-    return this.mtlCache.get(path)!;
+    return this.mtlCache.get(resolvedPath)!;
   }
 
   private async loadTexture(path: string): Promise<Texture | null> {
-    if (!this.textureCache.has(path)) {
+    const resolvedPath = this.resolvePublicPath(path);
+    if (!this.textureCache.has(resolvedPath)) {
       const promise = new Promise<Texture | null>((resolve) => {
         this.textureLoader.load(
-          path,
+          resolvedPath,
           (texture) => resolve(texture),
           undefined,
           () => resolve(null)
         );
       });
-      this.textureCache.set(path, promise);
+      this.textureCache.set(resolvedPath, promise);
     }
-    return this.textureCache.get(path)!;
+    return this.textureCache.get(resolvedPath)!;
   }
 
   private isGLTF(path: string): boolean {
@@ -288,6 +293,17 @@ export class Assets {
   private getBaseNameWithoutExtension(path: string): string {
     const base = path.split("/").pop() ?? path;
     return base.replace(/\.[^/.]+$/u, "");
+  }
+
+  private resolvePublicPath(path: string): string {
+    if (/^(?:[a-z]+:)?\/\//iu.test(path)) {
+      return path;
+    }
+
+    const base = import.meta.env.BASE_URL ?? "/";
+    const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+    const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+    return `${normalizedBase}${normalizedPath}`;
   }
 
   private async applyModelFixes(path: string, root: Object3D): Promise<void> {

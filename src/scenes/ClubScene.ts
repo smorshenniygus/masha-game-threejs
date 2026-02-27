@@ -548,7 +548,7 @@ export class ClubScene implements IGameState {
 
     // Fallback for containers/codecs that fail decodeAudioData (common with mp4 video files).
     const element = document.createElement("audio");
-    element.src = "/assets/audio/club_track.mp3";
+    element.src = this.resolvePublicPath("/assets/audio/club_track.mp3");
     element.loop = true;
     element.preload = "auto";
     element.crossOrigin = "anonymous";
@@ -583,6 +583,13 @@ export class ClubScene implements IGameState {
 
   private getGroundLift(object: Object3D): number {
     return Number(object.userData.groundOffsetY ?? 0) * object.scale.y;
+  }
+
+  private resolvePublicPath(path: string): string {
+    const base = import.meta.env.BASE_URL ?? "/";
+    const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+    const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+    return `${normalizedBase}${normalizedPath}`;
   }
 }
 
